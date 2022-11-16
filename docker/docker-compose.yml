@@ -46,7 +46,8 @@ services:
     restart: always
     image: chronograf:latest
     ports:
-      - "127.0.0.1:8888:8888"
+      # - "127.0.0.1:8888:8888" to ensure access to only directly from pi
+      - "8888:8888"
     depends_on:
       - influxdb
     networks: [metrics]
