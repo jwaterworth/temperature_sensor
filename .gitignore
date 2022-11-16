@@ -1,0 +1,3 @@
+docker/grafana/data/grafana.db
+docker/grafana/data/alerting/**/*
+docker/grafana/data/plugins/**/*
