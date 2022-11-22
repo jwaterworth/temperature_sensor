@@ -1,4 +1,4 @@
 docker/grafana/data/**/*
 docker/grafana/data/alerting/**/*
 docker/grafana/data/plugins/**/*
-docker/infuxdb/data/**/*
+docker/influxdb/data/
