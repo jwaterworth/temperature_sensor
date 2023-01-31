@@ -2,3 +2,7 @@ docker/grafana/data/**/*
 docker/grafana/data/alerting/**/*
 docker/grafana/data/plugins/**/*
 docker/influxdb/data/
+
+esp8266/test_scripts/**/*
+esp8266/certificates/**/*
+**/*/secrets.h
