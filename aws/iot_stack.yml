@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  IotThingBedroom:
+    Type: AWS::IoT::Thing
+    Properties:
+      ThingName: "esp8266_bedroom"
+
+  MyIotCertificate:
+    Type: AWS::IoT::Certificate
+    Properties:
+      Status: ACTIVE
+
+  MyIotPolicy:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyName: "esp8266_shared_policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - iot:Connect
+              - iot:Publish
+              - iot:Receive
+              - iot:Subscribe
+            Resource: :"*"
+
+  MyThingPrincipalAttachment:
+    Type: AWS::IoT::ThingPrincipalAttachment
+    Properties:
+      ThingName:
+        Ref: IotThingBedroom
+      Principal:
+        Ref: MyIotCertificate
+
+  MyIotPolicyAttachment:
+    Type: AWS::IoT::PolicyPrincipalAttachment
+    Properties:
+      PolicyName:
+        Ref: MyIotPolicy
+      Principal:
+        Ref: MyIotCertificate
+
+  # MyIotRule:
+  #   Type: AWS::IoT::TopicRule
+  #   Properties:
+  #     RuleName: my-iot-rule
+  #     TopicRulePayload:
+  #       Sql: "SELECT * FROM 'my/topic'"
+  #       AwsIotSqlVersion: "2016-03-23"
+  #       Actions:
+  #         - Timestream:
+  #             TimestreamNamespace: "my-timestream-namespace"
+  #             TimestreamTable: "my-timestream-table"
+  #             RoleArn: "arn:aws:iam::1234567890:role/my-role"
+
+  # MyTimestreamDatabase:
+  #   Type: AWS::Timestream::Database
+  #   Properties:
+  #     DatabaseName: my-timestream-database
+  #     KmsKeyId: "arn:aws:kms:us-west-2:1234567890:key/12345678-1234-1234-1234-1234567890"x
+
+  # MyTimestreamTable:
+  #   Type: AWS::Timestream::Table
+  #   Properties:
+  #     DatabaseName: my-timestream-database
+  #     TableName: my-timestream-table
+  #     RetentionProperties:
+  #       MemoryTimeUnit: SECONDS
+  #       MemorySizeInBytes: 3600
+# You'll also need to replace the placeholders such as my-iot-thing, my-iot-policy, my-timestream-database, my-timestream-table, arn:aws:iam::1234567890:role/my-role with your actual values.

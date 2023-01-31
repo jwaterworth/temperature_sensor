@@ -1,0 +1,82 @@
+Description: Timestream temp/humidity database and tables.
+Resources:
+  TimestreamDataBase:
+    Type: "AWS::Timestream::Database"
+    Properties:
+      DatabaseName: "HouseData"
+  TimestreamTableTemperature:
+    Type: "AWS::Timestream::Table"
+    Properties:
+      DatabaseName: !Ref TimestreamDataBase
+      TableName: "Temperature"
+      RetentionProperties:
+        MemoryStoreRetentionPeriodInHours: "168" # 7 days
+        MagneticStoreRetentionPeriodInDays: "1095" # 3 years
+  TimestreamTableHumidity:
+    Type: "AWS::Timestream::Table"
+    Properties:
+      DatabaseName: !Ref TimestreamDataBase
+      TableName: "Humidity"
+      RetentionProperties:
+        MemoryStoreRetentionPeriodInHours: "168" # 7 days
+        MagneticStoreRetentionPeriodInDays: "1095" # 3 years
+  IoTDataToTimestreamRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - iot.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Join
+            - ""
+            - - IoTDataToTimestreamInlinePolicy-
+              - !Ref "AWS::Region"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "timestream:WriteRecords"
+                Resource:
+                  - !GetAtt
+                    - TimestreamTableTemperature
+                    - Arn
+                  - !GetAtt
+                    - TimestreamTableHumidity
+                    - Arn
+              - Effect: Allow
+                Action:
+                  - "timestream:DescribeEndpoints"
+                Resource: "*"
+      Path: /service-role/
+Outputs:
+  TimestreamDataBaseName:
+    Description: Timestream data base name
+    Value: !Ref TimestreamDataBase
+  TimestreamTableTemperatureName:
+    Description: Timestream temperature table name
+    Value: !Ref TimestreamTableTemperature
+  TimestreamTableName:
+    Description: Timestream humidity table name
+    Value: !Ref TimestreamTableHumidity
+  TimestreamTableTemperatureArn:
+    Description: Timestream table arn
+    Value: !GetAtt
+      - TimestreamTableTemperature
+      - Arn
+  TimestreamTableArn:
+    Description: Timestream table arn
+    Value: !GetAtt
+      - TimestreamTableHumidity
+      - Arn
+  IoTDataToTimestreamRoleArn:
+    Description: Arn for the IAM role to allow write to Timestream table
+    Value: !GetAtt
+      - IoTDataToTimestreamRole
+      - Arn
