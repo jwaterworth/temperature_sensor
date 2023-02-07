@@ -6,3 +6,5 @@ docker/influxdb/data/
 esp8266/test_scripts/**/*
 esp8266/certificates/**/*
 **/*/secrets.h
+
+*.DS_Store
