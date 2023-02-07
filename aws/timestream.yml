@@ -1,13 +1,13 @@
 Description: Timestream temp/humidity database and tables.
 Resources:
-  TimestreamDataBase:
+  TimestreamDatabase:
     Type: "AWS::Timestream::Database"
     Properties:
       DatabaseName: "HouseData"
   TimestreamTableTemperature:
     Type: "AWS::Timestream::Table"
     Properties:
-      DatabaseName: !Ref TimestreamDataBase
+      DatabaseName: !Ref TimestreamDatabase
       TableName: "Temperature"
       RetentionProperties:
         MemoryStoreRetentionPeriodInHours: "168" # 7 days
@@ -15,7 +15,7 @@ Resources:
   TimestreamTableHumidity:
     Type: "AWS::Timestream::Table"
     Properties:
-      DatabaseName: !Ref TimestreamDataBase
+      DatabaseName: !Ref TimestreamDatabase
       TableName: "Humidity"
       RetentionProperties:
         MemoryStoreRetentionPeriodInHours: "168" # 7 days
@@ -56,9 +56,9 @@ Resources:
                 Resource: "*"
       Path: /service-role/
 Outputs:
-  TimestreamDataBaseName:
+  TimestreamDatabaseName:
     Description: Timestream data base name
-    Value: !Ref TimestreamDataBase
+    Value: !Ref TimestreamDatabase
   TimestreamTableTemperatureName:
     Description: Timestream temperature table name
     Value: !Ref TimestreamTableTemperature
