@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { line, max, scaleLinear, select } from "d3";
 
-export function TemperatureChart() {
+export function TemperatureChartOld() {
   const elRef = useRef<HTMLElement>(null);
   const [temperatures, setTemperatures] = useState<number[]>([]);
   const width = 300;
