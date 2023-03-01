@@ -8,6 +8,8 @@
 
 #define DHTPIN 5 // Digital pin connected to the DHT sensor
 
+#define ROOM "dining-room"
+
 DHT dht(DHTPIN, DHT22);
 
 float h;
@@ -104,7 +106,7 @@ void connectAWS()
 void publishMessage()
 {
   StaticJsonDocument<200> doc;
-  doc["time"] = millis();
+  doc["room"] = ROOM;
   doc["humidity"] = h;
   doc["temperature"] = t;
   char jsonBuffer[512];
