@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  api
+
+  Sample SAM Template for api
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  HomeDataFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Policies:
+        - AmazonTimestreamFullAccess
+        # - Version: "2012-10-17"
+        #   Statement:
+        #     - Effect: Allow
+        #       Action:
+        #         - timestream:*
+        #         - kms:DescribeKey
+        #         - kms:CreateGrant
+        #         - kms:Decrypt
+        #         - dbqms:CreateFavoriteQuery
+        #         - dbqms:DescribeFavoriteQueries
+        #         - dbqms:UpdateFavoriteQuery
+        #         - dbqms:DeleteFavoriteQueries
+        #         - dbqms:GetQueryString
+        #         - dbqms:CreateQueryHistory
+        #         - dbqms:UpdateQueryHistory
+        #         - dbqms:DeleteQueryHistory
+        #         - dbqms:DescribeQueryHistory
+        #         - s3:ListAllMyBuckets
+        #       Resource: "*"
+      Architectures:
+        - x86_64
+      Events:
+        TemperatureData:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /temperature
+            Method: get
+        HumidityData:
+          Type: HttpApi
+          Properties:
+            Path: /humidity
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
+Outputs:
+  HomeDataApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  HomeDataFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HomeDataFunction.Arn
+  HomeDataFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HomeDataFunctionRole.Arn
