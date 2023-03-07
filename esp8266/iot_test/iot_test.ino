@@ -3,12 +3,10 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <time.h>
-#include "secrets.h"
+#include "secrets-bedroom.h"
 #include "DHT.h"
 
 #define DHTPIN 5 // Digital pin connected to the DHT sensor
-
-#define ROOM "dining-room"
 
 DHT dht(DHTPIN, DHT22);
 
@@ -16,7 +14,7 @@ float h;
 float t;
 unsigned long lastMillis = 0;
 unsigned long previousMillis = 0;
-const long interval = 5000;
+const long interval = 60000;
 
 #define AWS_IOT_PUBLISH_TOPIC "esp8266/pub"
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp8266/sub"
@@ -84,6 +82,8 @@ void connectAWS()
   client.setServer(MQTT_HOST, 8883);
   client.setCallback(messageReceived);
 
+  Serial.println(ROOM);
+
   Serial.println("Connecting to AWS IOT");
 
   while (!client.connect(THINGNAME))
@@ -149,7 +149,7 @@ void loop()
   else
   {
     client.loop();
-    if (millis() - lastMillis > 5000)
+    if (millis() - lastMillis > interval)
     {
       lastMillis = millis();
       publishMessage();
