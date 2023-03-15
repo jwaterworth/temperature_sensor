@@ -9,26 +9,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Title from "./Title";
-import { title } from "process";
-import { getTemperatures } from "../services/getTemperatures";
-import { CircularProgress, LinearProgress } from "@mui/material";
-
-// Generate Sales Data
-function createData(time: string, value?: number) {
-  return { time, value };
-}
-
-const data = [
-  createData("00:00", 0),
-  createData("03:00", 300),
-  createData("06:00", 600),
-  createData("09:00", 800),
-  createData("12:00", 1500),
-  createData("15:00", 2000),
-  createData("18:00", 2400),
-  createData("21:00", 2400),
-  createData("24:00", undefined),
-];
+import {
+  CombinedSeriesData,
+  getCombinedRoomData,
+  getTomorrow,
+  getYesterday,
+  RoomData,
+} from "../services/getTemperatures";
+import { CircularProgress, Grid, LinearProgress, Paper } from "@mui/material";
 
 export interface DataPoints {
   time: string;
@@ -51,63 +39,107 @@ export default function TemperatureChart({
 }: TemperatureChartProps) {
   const theme = useTheme();
 
+  xAxisTitle = "Date";
+  yAxisTitle = "Temperature (°C)";
   const [dataLoaded, setDataLoaded] = React.useState<boolean>(false);
-  const [data, setData] = React.useState<DataPoints[]>([]);
+  const [data, setData] = React.useState<CombinedSeriesData[]>([]);
+  console.log(`${title} first`);
 
   React.useEffect(() => {
-    getTemperatures(name, "123", "123").then((data) => {
-      setDataLoaded(true);
-      setData(data.temperatures);
-    });
-  }, []);
+    if (!dataLoaded) {
+      console.log(`${title} second`);
+      getCombinedRoomData(name, getYesterday(), getTomorrow()).then((data) => {
+        setDataLoaded(true);
+        setData(data.combinedData);
+      });
+    }
+  }, [dataLoaded]);
 
   return (
-    <React.Fragment>
-      <Title>{title}</Title>
-      {!dataLoaded && <CircularProgress />}
-      {dataLoaded && (
-        <ResponsiveContainer>
-          <LineChart
-            data={data}
-            margin={{
-              top: 16,
-              right: 16,
-              bottom: 0,
-              left: 24,
-            }}
-          >
-            <XAxis
-              dataKey="time"
-              stroke={theme.palette.text.secondary}
-              style={theme.typography.body2}
-            />
-            <YAxis
-              stroke={theme.palette.text.secondary}
-              style={theme.typography.body2}
+    <Grid item xs={12} lg={6}>
+      <Paper
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          height: 240,
+        }}
+      >
+        <Title>{title}</Title>
+        {!dataLoaded && <CircularProgress />}
+        {dataLoaded && (
+          <ResponsiveContainer>
+            <LineChart
+              data={data}
+              margin={{
+                top: 16,
+                right: 16,
+                bottom: 0,
+                left: 24,
+              }}
             >
-              <Label
-                angle={270}
-                position="left"
-                style={{
-                  textAnchor: "middle",
-                  fill: theme.palette.text.primary,
-                  ...theme.typography.body1,
-                }}
+              <XAxis
+                dataKey="time"
+                stroke={theme.palette.text.secondary}
+                style={theme.typography.body2}
+              />
+              <YAxis
+                yAxisId="left"
+                stroke={theme.palette.text.secondary}
+                style={theme.typography.body2}
               >
-                {yAxisTitle}
-              </Label>
-            </YAxis>
-            <Line
-              isAnimationActive={false}
-              type="monotone"
-              dataKey="value"
-              stroke={theme.palette.primary.main}
-              dot={false}
-              label={xAxisTitle}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      )}
-    </React.Fragment>
+                <Label
+                  angle={270}
+                  position="left"
+                  style={{
+                    textAnchor: "middle",
+                    fill: theme.palette.text.primary,
+                    ...theme.typography.body1,
+                  }}
+                >
+                  Temperature (°C)
+                </Label>
+              </YAxis>
+              <YAxis
+                yAxisId="right"
+                stroke={theme.palette.text.secondary}
+                style={theme.typography.body2}
+                orientation="right"
+              >
+                <Label
+                  angle={270}
+                  position="right"
+                  style={{
+                    textAnchor: "middle",
+                    fill: theme.palette.text.primary,
+                    ...theme.typography.body1,
+                  }}
+                >
+                  Humidity
+                </Label>
+              </YAxis>
+              <Line
+                yAxisId="left"
+                isAnimationActive={false}
+                type="monotone"
+                stroke={theme.palette.primary.main}
+                dot={true}
+                dataKey="temperature"
+                label="Date"
+              />
+              <Line
+                yAxisId="right"
+                isAnimationActive={false}
+                type="monotone"
+                stroke={theme.palette.error.main}
+                dot={true}
+                dataKey="humidity"
+                label="Date"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </Paper>
+    </Grid>
   );
 }

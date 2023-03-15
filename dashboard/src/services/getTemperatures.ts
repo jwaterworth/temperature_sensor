@@ -4,6 +4,12 @@ export interface TimeSeriesData {
     value: number;
 }
 
+export interface CombinedSeriesData {
+    time: string;
+    temperature: number;
+    humidity: number;
+}
+
 export interface Room {
     name: string;
     title: string;
@@ -11,29 +17,15 @@ export interface Room {
 
 export interface RoomData {
     name: string;
-    temperatures: TimeSeriesData[];
-    humidity: TimeSeriesData[];
+    combinedData: CombinedSeriesData[];
 }
-
-
-// function to create temperature data between lower and upper bound parameters
-const createRoomData = (count = 30, lowerBound = 20, upperBound = 30): TimeSeriesData[] => {
-    const data = [];
-    for (let i = 0; i < count; i++) {
-        data.push({
-            time: new Date().toISOString(),
-            value: Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound,
-        });
-    }
-    return data;
-};
 
 export const getRooms = async (): Promise<Room[]> => {
     return await asyncSetTimeout(() => [
-        {
-            name: "living-room",
-            title: "Living Room",
-        },
+        // {
+        //     name: "living-room",
+        //     title: "Living Room",
+        // },
         {
             name: "bedroom",
             title: "Bedroom",
@@ -43,8 +35,8 @@ export const getRooms = async (): Promise<Room[]> => {
             title: "Kitchen",
         },
         {
-            name: "bathroom",
-            title: "Bathroom",
+            name: "dining-room",
+            title: "Dining room",
         },
     ], 300);
 };
@@ -57,44 +49,64 @@ const asyncSetTimeout = <T>(callback: () => T, delay: number) => {
     });
 };
 
-export const getTemperatures = async (room: string, startTime: string, endTime: string): Promise<RoomData> => {
-    switch (room) {
-        case "living-room":
-            return await asyncSetTimeout(() => {
-                console.log('loaded living room data')
-                return {
-                    name: "living-room",
-                    temperatures: createRoomData(30, -5, 15),
-                    humidity: createRoomData(30, 40, 75),
-                }
-            }, 750);
-        case "bedroom":
-            return await asyncSetTimeout(() => {
-                console.log('loaded bedroom data')
-                return {
-                    name: "bedroom",
-                    temperatures: createRoomData(30, -5, 15),
-                    humidity: createRoomData(30, 40, 75),
-                }
-            }, 1500);
-        case "kitchen":
-            return await asyncSetTimeout(() => {
-                console.log('loaded kitchen data')
-                return {
-                    name: "kitchen",
-                    temperatures: createRoomData(30, -5, 15),
-                    humidity: createRoomData(30, 40, 75),
-                }
-            }, 100);
-        default:
-        case "bathroom":
-            return await asyncSetTimeout(() => {
-                console.log('loaded bathroom data')
-                return {
-                    name: "bathroom",
-                    temperatures: createRoomData(30, -5, 15),
-                    humidity: createRoomData(30, 40, 75),
-                }
-            }, 500);
+export const getCombinedRoomData = async (room: string, startTime: string, endTime: string): Promise<RoomData> => {
+    // call get room data for temperature and humidity and merge into RoomData object
+    const [temperatures, humidity] = await Promise.all([
+        requestRoomData(room, startTime, endTime, 'temperature'),
+        requestRoomData(room, startTime, endTime, 'humidity')
+    ])
+
+    // group temperature and humidity by their time property
+    const grouped = temperatures.reduce((acc, item) => {
+        acc[item.time] = {
+            ...acc[item.time],
+            time: item.time,
+            temperature: item.value
+        }
+        return acc;
+    }, {} as Record<string, CombinedSeriesData>)
+    humidity.forEach(item => {
+        grouped[item.time] = {
+            ...grouped[item.time],
+            time: item.time,
+            humidity: item.value
+        }
+    })
+
+    return {
+        name: room,
+        combinedData: Object.values(grouped)
     }
+};
+
+const API_URL = 'https://vbpu8i56e9.execute-api.eu-west-1.amazonaws.com'
+
+export const requestRoomData = async (room: string, startDate: string, endDate: string, type: 'temperature' | 'humidity'): Promise<TimeSeriesData[]> => {
+    const response = (await fetch(`${API_URL}/${type}?room=${room}&startDate=${startDate}&endDate=${endDate}&groupBy=hour`)).json()
+    // map response and change time to HH:MM:SS format
+    return (await response).data.map((item: any) => ({
+        time: new Date(item.time).toLocaleTimeString(),
+        value: item.value
+    }))
+
+}
+
+// calcuate todays date function in YYYY-MM-DD format
+export const getToday = (): string => {
+    const today = new Date();
+    return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+}
+
+// yesterday
+export const getYesterday = (): string => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`;
+}
+
+// calcualate tomorrow's date function in YYYY-MM-DD format
+export const getTomorrow = (): string => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return `${tomorrow.getFullYear()}-${tomorrow.getMonth() + 1}-${tomorrow.getDate()}`;
 }

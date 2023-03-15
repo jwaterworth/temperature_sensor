@@ -12,21 +12,14 @@ import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "./listItems";
-import Chart from "./Chart";
-import Deposits from "./Deposits";
-import Orders from "./Orders";
-import TemperatureChart, {
-  DataPoints,
-  TemperatureChartProps,
-} from "./TemperatureChart";
 import { getRooms, Room } from "../services/getTemperatures";
 import { LinearProgress } from "@mui/material";
+import TemperatureChart from "./TemperatureChart";
 
 function Copyright(props: any) {
   return (
@@ -37,8 +30,8 @@ function Copyright(props: any) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="https://github.com/jwaterworth/">
+        James Waterworth
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -143,7 +136,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Room temperature & humidity dashboard
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -193,44 +186,10 @@ function DashboardContent() {
                   <LinearProgress />
                 </Grid>
               )}
-              {rooms.map((room) => (
-                <Grid item xs={12} lg={6}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 240,
-                    }}
-                  >
-                    <TemperatureChart
-                      title={room.title}
-                      name={room.name}
-                      xAxisTitle="Date"
-                      yAxisTitle="Temperature (°C)"
-                    />
-                  </Paper>
-                </Grid>
-              ))}
-              {/* Recent Deposits */}
-              {/* <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              {/* <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <Orders />
-                </Paper>
-                </Grid>*/}
+              {roomsLoaded &&
+                rooms.map((room) => (
+                  <TemperatureChart title={room.title} name={room.name} />
+                ))}
             </Grid>
             <Copyright sx={{ pt: 4 }} />
           </Container>
