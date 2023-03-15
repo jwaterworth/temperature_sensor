@@ -8,7 +8,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
 
 Resources:
   HomeDataFunction:
@@ -19,25 +19,6 @@ Resources:
       Runtime: nodejs18.x
       Policies:
         - AmazonTimestreamFullAccess
-        # - Version: "2012-10-17"
-        #   Statement:
-        #     - Effect: Allow
-        #       Action:
-        #         - timestream:*
-        #         - kms:DescribeKey
-        #         - kms:CreateGrant
-        #         - kms:Decrypt
-        #         - dbqms:CreateFavoriteQuery
-        #         - dbqms:DescribeFavoriteQueries
-        #         - dbqms:UpdateFavoriteQuery
-        #         - dbqms:DeleteFavoriteQueries
-        #         - dbqms:GetQueryString
-        #         - dbqms:CreateQueryHistory
-        #         - dbqms:UpdateQueryHistory
-        #         - dbqms:DeleteQueryHistory
-        #         - dbqms:DescribeQueryHistory
-        #         - s3:ListAllMyBuckets
-        #       Resource: "*"
       Architectures:
         - x86_64
       Events:
@@ -59,6 +40,17 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - app.ts
+  HomeDataApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "*"
+        AllowMethods:
+          - "*"
 
 Outputs:
   HomeDataApi:

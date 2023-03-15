@@ -63,7 +63,10 @@ const formatResponse = (statusCode: number, body: Record<string, unknown>): APIG
     return {
         statusCode,
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+            "Access-Control-Allow-Methods": "GET" // Allow only GET request 
         },
         body: JSON.stringify(body)
     };
