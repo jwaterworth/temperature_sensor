@@ -20,6 +20,7 @@ import { mainListItems, secondaryListItems } from "./listItems";
 import { getRooms, Room } from "../services/getTemperatures";
 import { LinearProgress } from "@mui/material";
 import TemperatureChart from "./TemperatureChart";
+import { DatePicker } from "./DatePicker";
 
 function Copyright(props: any) {
   return (
@@ -138,6 +139,7 @@ function DashboardContent() {
             >
               Room temperature & humidity dashboard
             </Typography>
+            <DatePicker />
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
