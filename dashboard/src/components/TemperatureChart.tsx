@@ -11,12 +11,13 @@ import {
 import Title from "./Title";
 import {
   CombinedSeriesData,
+  dateToString,
   getCombinedRoomData,
-  getTomorrow,
-  getYesterday,
-  RoomData,
 } from "../services/getTemperatures";
 import { CircularProgress, Grid, LinearProgress, Paper } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "../slices/store";
+import { selectDateRange } from "../slices/dateRangeSlice";
 
 export interface DataPoints {
   time: string;
@@ -45,15 +46,24 @@ export default function TemperatureChart({
   const [data, setData] = React.useState<CombinedSeriesData[]>([]);
   console.log(`${title} first`);
 
+  const selectedDateRange = useSelector(selectDateRange);
+
   React.useEffect(() => {
-    if (!dataLoaded) {
-      console.log(`${title} second`);
-      getCombinedRoomData(name, getYesterday(), getTomorrow()).then((data) => {
-        setDataLoaded(true);
-        setData(data.combinedData);
-      });
-    }
-  }, [dataLoaded]);
+    if (
+      !selectedDateRange ||
+      !selectedDateRange.startDate ||
+      !selectedDateRange.endDate
+    )
+      return;
+    getCombinedRoomData(
+      name,
+      dateToString(selectedDateRange.startDate),
+      dateToString(selectedDateRange.endDate)
+    ).then((data) => {
+      setDataLoaded(true);
+      setData(data.combinedData);
+    });
+  }, [dataLoaded, selectedDateRange]);
 
   return (
     <Grid item xs={12} lg={6}>
