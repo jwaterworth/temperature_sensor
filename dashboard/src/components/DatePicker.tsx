@@ -55,36 +55,34 @@ export const DatePicker: React.FC = () => {
     );
   };
 
-  const dateRangePickerRef = useRef();
+  const dateRangePickerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Add event listener to listen for clicks outside the date picker
     const handleClickOutside = (event: MouseEvent) => {
-      console.log(dateRangePickerRef.current);
-      console.log("CLICKED OUTSIDE");
       if (
         dateRangePickerRef.current &&
-        !(dateRangePickerRef.current as Node).contains(event.target as Node)
+        !(dateRangePickerRef.current as Node).contains(event.target as Node) &&
+        buttonRef.current &&
+        !(buttonRef.current as Node).contains(event.target as Node)
       ) {
-        console.log("CLICKED OUTSIDE AND SET SHOW DATE PICKER TO FALSE");
         setShowDatePicker(false);
-      } else {
-        console.log("Narrator: It did not work");
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Remove event listener when component unmounts
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dateRangePickerRef]);
+  }, []);
 
   return (
     <div>
       <OpenButton
         id="open-button"
         onClick={() => setShowDatePicker(!showDatePicker)}
+        ref={buttonRef}
       >
         {/* show start and end date in button */}
         {selectedRange[DATE_RANGE_KEY].startDate?.toLocaleDateString()} -{" "}
@@ -95,6 +93,7 @@ export const DatePicker: React.FC = () => {
           open={showDatePicker}
           anchorEl={document.querySelector("#open-button")}
           placement="bottom-start"
+          ref={dateRangePickerRef}
         >
           <PickerPaper>
             <DateRangePicker
