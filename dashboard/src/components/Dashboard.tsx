@@ -100,13 +100,16 @@ function DashboardContent() {
 
   const [roomsLoaded, setRoomsLoaded] = React.useState(false);
   const [rooms, setRooms] = React.useState<Room[]>([]);
-
+  
   React.useEffect(() => {
     getRooms().then((rooms) => {
       setRoomsLoaded(true);
       setRooms(rooms);
     });
   }, []);
+
+  console.log(rooms);
+  console.log(roomsLoaded);
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -190,7 +193,7 @@ function DashboardContent() {
               )}
               {roomsLoaded &&
                 rooms.map((room) => (
-                  <TemperatureChart title={room.title} name={room.name} />
+                  <TemperatureChart key={room.name} title={room.title} name={room.name} />
                 ))}
             </Grid>
             <Copyright sx={{ pt: 4 }} />

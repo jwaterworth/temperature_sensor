@@ -1,4 +1,4 @@
 export interface DateRange {
-    startDate: Date | null;
-    endDate: Date | null;
+    startTimestamp: number | null;
+    endTimestamp: number | null;
 }

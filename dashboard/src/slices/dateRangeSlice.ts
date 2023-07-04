@@ -5,7 +5,7 @@ interface InitialState {
     dateRange: DateRange | null;
 }
 
-const initialState: InitialState = { dateRange: { startDate: null, endDate: null } };
+const initialState: InitialState = { dateRange: { startTimestamp: null, endTimestamp: null } };
 
 const dateRangeSlice = createSlice({
     name: 'setDateRange',

@@ -48,11 +48,8 @@ export const DatePicker: React.FC = () => {
     const { startDate, endDate } = ranges[DATE_RANGE_KEY];
     setSelectedRange(ranges);
     if (!startDate || !endDate) return;
-    dispatch(
-      setSelectedDateRange({
-        dateRange: { startDate, endDate },
-      })
-    );
+    dispatch(setSelectedDateRange({dateRange: { startTimestamp: (startDate as Date).getTime(), endTimestamp: (endDate as Date).getTime() }}));
+    
   };
 
   const dateRangePickerRef = useRef<HTMLDivElement>(null);

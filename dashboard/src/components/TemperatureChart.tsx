@@ -44,26 +44,31 @@ export default function TemperatureChart({
   yAxisTitle = "Temperature (°C)";
   const [dataLoaded, setDataLoaded] = React.useState<boolean>(false);
   const [data, setData] = React.useState<CombinedSeriesData[]>([]);
-  console.log(`${title} first`);
+  console.log(`${title} - data loaded: ${dataLoaded}`);
 
   const selectedDateRange = useSelector(selectDateRange);
+
+  const setDataCallback = React.useCallback((newData: CombinedSeriesData[]) => {
+    setDataLoaded(true);
+    setData(newData);
+  }, []);
 
   React.useEffect(() => {
     if (
       !selectedDateRange ||
-      !selectedDateRange.startDate ||
-      !selectedDateRange.endDate
+      !selectedDateRange.startTimestamp ||
+      !selectedDateRange.endTimestamp
     )
       return;
     getCombinedRoomData(
       name,
-      dateToString(selectedDateRange.startDate),
-      dateToString(selectedDateRange.endDate)
+      dateToString(new Date(selectedDateRange.startTimestamp)),
+      dateToString(new Date(selectedDateRange.endTimestamp))
     ).then((data) => {
-      setDataLoaded(true);
-      setData(data.combinedData);
+      console.log(`${title} - retrieved data}`)
+      setDataCallback(data.combinedData);
     });
-  }, [dataLoaded, selectedDateRange]);
+  }, [selectedDateRange]);
 
   return (
     <Grid item xs={12} lg={6}>
