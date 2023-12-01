@@ -52,8 +52,8 @@ const asyncSetTimeout = <T>(callback: () => T, delay: number) => {
 export const getCombinedRoomData = async (room: string, startTime: string, endTime: string): Promise<RoomData> => {
     // call get room data for temperature and humidity and merge into RoomData object
     const [temperatures, humidity] = await Promise.all([
-        requestRoomData(room, startTime, endTime, 'temperature'),
-        requestRoomData(room, startTime, endTime, 'humidity')
+        requestRoomData(room, startTime, endTime, 'temperature', 'day'),
+        requestRoomData(room, startTime, endTime, 'humidity', 'day')
     ])
 
     // group temperature and humidity by their time property
@@ -79,13 +79,13 @@ export const getCombinedRoomData = async (room: string, startTime: string, endTi
     }
 };
 
-const API_URL = 'https://vbpu8i56e9.execute-api.eu-west-1.amazonaws.com'
+const API_URL = 'https://home-data-api.jameswaterworth.dev'
 
-export const requestRoomData = async (room: string, startDate: string, endDate: string, type: 'temperature' | 'humidity'): Promise<TimeSeriesData[]> => {
-    const response = (await fetch(`${API_URL}/${type}?room=${room}&startDate=${startDate}&endDate=${endDate}&groupBy=hour`)).json()
+export const requestRoomData = async (room: string, startDate: string, endDate: string, type: 'temperature' | 'humidity', groupBy = 'hour'): Promise<TimeSeriesData[]> => {
+    const response = (await fetch(`${API_URL}/${type}?room=${room}&startDate=${startDate}&endDate=${endDate}&groupBy=${groupBy}`)).json()
     // map response and change time to HH:MM:SS format
     return (await response).data.map((item: any) => ({
-        time: new Date(item.time).toLocaleTimeString(),
+        time: new Date(item.time).toISOString().split('T')[0],
         value: item.value
     }))
 
